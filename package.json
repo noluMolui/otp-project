@@ -1,0 +1,15 @@
+{
+  "name": "otp-security-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A teaching demonstration of an OTP API and frontend.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "check": "node --check src/server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "otp-security-demo": "file:"
+  }
+}

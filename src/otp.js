@@ -8,6 +8,14 @@ function generateOtp(length = config.otpLength, random = crypto.randomInt) {
   return String(value).padStart(length, '0');
 }
 
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(email));
+}
+
 function createOtpService({
   config: serviceConfig = config,
   randomInt = crypto.randomInt,
@@ -16,7 +24,7 @@ function createOtpService({
   const userState = new Map();
 
   function getUser(email) {
-    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const normalizedEmail = normalizeEmail(email);
 
     if (!normalizedEmail) {
       throw new Error('An email address is required.');
@@ -124,7 +132,7 @@ function createOtpService({
   }
 
   function verifyOtp(email, otpCode, { now: suppliedNow = now } = {}) {
-    const user = userState.get(String(email || '').trim().toLowerCase());
+    const user = userState.get(normalizeEmail(email));
     const timestamp = suppliedNow();
 
     if (!user || !user.currentOtp) {
@@ -137,7 +145,17 @@ function createOtpService({
       return { valid: false, reason: 'used' };
     }
 
-    if (String(otpCode) !== currentOtp.code) {
+    const submittedCode = String(otpCode || '');
+    if (!/^\d{6}$/.test(submittedCode)) {
+      return { valid: false, reason: 'invalid' };
+    }
+
+    const submittedBuffer = Buffer.from(submittedCode);
+    const storedBuffer = Buffer.from(currentOtp.code);
+    if (
+      submittedBuffer.length !== storedBuffer.length ||
+      !crypto.timingSafeEqual(submittedBuffer, storedBuffer)
+    ) {
       return { valid: false, reason: 'invalid' };
     }
 
@@ -157,4 +175,4 @@ function createOtpService({
   return { sendOtp, verifyOtp, userState };
 }
 
-module.exports = { generateOtp, createOtpService };
+module.exports = { generateOtp, createOtpService, isValidEmail, normalizeEmail };

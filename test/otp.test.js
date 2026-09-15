@@ -112,10 +112,12 @@ function withService({ now = () => 1_000, sequence = [], config = baseConfig } =
   service.sendOtp('verify@example.com');
   const valid = service.verifyOtp('verify@example.com', '123456');
   const usedAgain = service.verifyOtp('verify@example.com', '123456');
+  const malformed = service.verifyOtp('verify@example.com', '12345');
 
   assert.equal(valid.valid, true);
   assert.equal(usedAgain.valid, false);
   assert.equal(usedAgain.reason, 'used');
+  assert.equal(malformed.valid, false);
 }
 
 {

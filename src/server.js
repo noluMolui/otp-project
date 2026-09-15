@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const path = require('node:path');
-const { createOtpService } = require('./otp');
+const { createOtpService, isValidEmail } = require('./otp');
 const { createMailer } = require('./mailer');
 
 const app = express();
@@ -20,8 +20,8 @@ app.get('/api/health', (request, response) => {
 app.post('/api/otp/send', async (request, response) => {
   const { email } = request.body || {};
 
-  if (!email) {
-    return response.status(400).json({ status: 'error', reason: 'email-required' });
+  if (!isValidEmail(email)) {
+    return response.status(400).json({ status: 'error', reason: 'invalid-email' });
   }
 
   const result = otpService.sendOtp(email);
@@ -49,7 +49,7 @@ app.post('/api/otp/send', async (request, response) => {
 app.post('/api/otp/verify', (request, response) => {
   const { email, otp } = request.body || {};
 
-  if (!email || !otp) {
+  if (!isValidEmail(email) || !/^\d{6}$/.test(String(otp || ''))) {
     return response.status(400).json({ status: 'error', reason: 'email-and-otp-required' });
   }
 

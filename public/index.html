@@ -1,37 +1,50 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Send OTP</title>
-    <style>
-      body { font-family: Arial, sans-serif; max-width: 640px; margin: 40px auto; padding: 20px; }
-      form { display: grid; gap: 12px; }
-      input, button { padding: 10px 12px; font-size: 1rem; }
-      .status { margin-top: 12px; padding: 12px; border-radius: 8px; background: #f2f2f2; }
-      .error { background: #fdecea; color: #7f1d1d; }
-      .success { background: #eafaf1; color: #14532d; }
-    </style>
+    <title>Send OTP | Secure Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <header>
-      <h1>Send OTP</h1>
-      <p>Use this screen to request an OTP for a user email address.</p>
-    </header>
+  <body class="min-h-full bg-slate-950 text-slate-100">
+    <div class="min-h-screen bg-[radial-gradient(circle_at_top_right,_rgba(20,184,166,0.18),_transparent_36%),linear-gradient(135deg,_#0f172a,_#111827_55%,_#134e4a)] px-5 py-8 sm:px-8">
+      <main class="mx-auto flex min-h-[calc(100vh-4rem)] max-w-5xl items-center justify-center">
+        <section class="grid w-full overflow-hidden rounded-3xl border border-white/10 bg-white shadow-2xl shadow-black/20 lg:grid-cols-[0.85fr_1.15fr]">
+          <div class="flex flex-col justify-between bg-teal-700 p-8 sm:p-12">
+            <div>
+              <div class="mb-10 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 text-xl font-bold">01</div>
+              <p class="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-teal-100">Secure access</p>
+              <h1 class="max-w-sm text-4xl font-black tracking-tight text-white sm:text-5xl">Send a one-time code.</h1>
+              <p class="mt-5 max-w-sm text-base leading-7 text-teal-50">Request a six-digit code and look for it in the recipient's email inbox.</p>
+            </div>
+            <p class="mt-12 text-sm text-teal-100">Codes expire quickly and can only be used once.</p>
+          </div>
 
-    <main>
-      <form id="send-otp-form">
-        <label for="email">Email address</label>
-        <input id="email" name="email" type="email" placeholder="student@example.com" required />
+          <div class="p-8 text-slate-900 sm:p-12">
+            <header class="mb-8">
+              <p class="text-sm font-semibold text-teal-700">Step 1 of 2</p>
+              <h2 class="mt-2 text-2xl font-bold tracking-tight">Send OTP</h2>
+              <p class="mt-2 text-sm leading-6 text-slate-500">Enter the email address that should receive the verification code.</p>
+            </header>
 
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <button type="submit">Send OTP</button>
-          <button type="button" id="resend-button">Resend OTP</button>
-        </div>
-      </form>
+            <form id="send-otp-form" class="space-y-5">
+              <div>
+                <label for="email" class="mb-2 block text-sm font-semibold text-slate-700">Email address</label>
+                <input id="email" name="email" type="email" placeholder="student@example.com" autocomplete="email" required class="w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-600 focus:ring-4 focus:ring-teal-100" />
+              </div>
 
-      <div id="status" class="status" aria-live="polite">No OTP has been sent yet.</div>
-    </main>
+              <div class="flex flex-col gap-3 sm:flex-row">
+                <button type="submit" class="flex-1 rounded-xl bg-teal-700 px-5 py-3 font-semibold text-white transition hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-200">Send OTP</button>
+                <button type="button" id="resend-button" class="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:border-teal-600 hover:text-teal-700 focus:outline-none focus:ring-4 focus:ring-teal-100">Resend</button>
+              </div>
+            </form>
+
+            <div id="status" class="mt-6 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600" aria-live="polite">No OTP has been sent yet.</div>
+            <a href="/verify" class="mt-6 inline-flex text-sm font-semibold text-teal-700 hover:text-teal-900">Already have a code? Verify it <span aria-hidden="true" class="ml-1">&rarr;</span></a>
+          </div>
+        </section>
+      </main>
+    </div>
 
     <script src="/app.js"></script>
   </body>

@@ -1,12 +1,19 @@
 const sendForm = document.getElementById('send-otp-form');
 const resendButton = document.getElementById('resend-button');
 const verifyForm = document.getElementById('verify-otp-form');
+const LAST_EMAIL_KEY = 'otp-email';
 
 function setStatus(message, kind = '') {
   const element = document.getElementById('status');
   if (!element) return;
   element.textContent = message;
-  element.className = `status ${kind}`.trim();
+  element.className = `mt-6 rounded-2xl border px-4 py-3 text-sm ${
+    kind === 'error'
+      ? 'border-red-200 bg-red-50 text-red-700'
+      : kind === 'success'
+        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+        : 'border-slate-200 bg-slate-50 text-slate-600'
+  }`.trim();
 }
 
 async function sendOtpRequest(endpoint) {
@@ -38,10 +45,8 @@ async function sendOtpRequest(endpoint) {
     return;
   }
 
-  setStatus(
-    `${data.isResend ? 'OTP resent' : 'OTP sent'} to ${email}. Check the email inbox to retrieve it.`,
-    'success',
-  );
+  localStorage.setItem(LAST_EMAIL_KEY, email);
+  window.location.href = '/verify';
 }
 
 if (sendForm) {
@@ -57,11 +62,20 @@ if (sendForm) {
 }
 
 if (verifyForm) {
+  const emailInput = document.getElementById('verify-email');
+  const savedEmail = localStorage.getItem(LAST_EMAIL_KEY) || '';
+
+  if (savedEmail) {
+    emailInput.value = savedEmail;
+    emailInput.readOnly = true;
+    document.getElementById('otp').focus();
+  }
+
   verifyForm.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const email = document.getElementById('verify-email').value.trim();
-    const otp = document.getElementById('otp').value.trim();
+    const otp = document.getElementById('otp').value.replace(/\D/g, '').slice(0, 6);
 
     if (!email || !otp) {
       setStatus('Please provide both the email and OTP.', 'error');
@@ -84,7 +98,13 @@ if (verifyForm) {
     }
 
     if (!response.ok) {
-      setStatus(data.reason || 'OTP verification failed.', 'error');
+      const messages = {
+        expired: 'This OTP has expired. Request a new code and enter it immediately.',
+        invalid: 'That OTP is incorrect. Use the newest six-digit code from your email.',
+        used: 'This OTP has already been used. Request a new code.',
+        'not-found': 'No active OTP was found. Request a new code.',
+      };
+      setStatus(messages[data.reason] || 'OTP verification failed.', 'error');
       return;
     }
 

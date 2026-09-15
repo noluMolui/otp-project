@@ -172,7 +172,7 @@ function createOtpService({
       return { valid: false, reason: 'invalid' };
     }
 
-    if (timestamp > currentOtp.expiresAt) {
+    if (timestamp >= currentOtp.expiresAt) {
       return { valid: false, reason: 'expired' };
     }
 

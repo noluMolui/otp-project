@@ -160,9 +160,12 @@ function withService({ now = () => 1_000, sequence = [], config = baseConfig } =
 
   service.sendOtp('expire@example.com');
   const expired = service.verifyOtp('expire@example.com', '123456', { now: () => 1_000 + (30 * 1000) + 1 });
+  const expiredAtBoundary = service.verifyOtp('expire@example.com', '123456', { now: () => 1_000 + (30 * 1000) });
 
   assert.equal(expired.valid, false);
   assert.equal(expired.reason, 'expired');
+  assert.equal(expiredAtBoundary.valid, false);
+  assert.equal(expiredAtBoundary.reason, 'expired');
 }
 
 {

@@ -18,13 +18,20 @@ async function sendOtpRequest(endpoint) {
     return;
   }
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email }),
-  });
+  let response;
+  let data;
 
-  const data = await response.json();
+  try {
+    response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    data = await response.json();
+  } catch (error) {
+    setStatus('The server could not be reached. Please try again.', 'error');
+    return;
+  }
 
   if (!response.ok) {
     setStatus(data.reason || 'Request failed.', 'error');
@@ -61,13 +68,20 @@ if (verifyForm) {
       return;
     }
 
-    const response = await fetch('/api/otp/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, otp }),
-    });
+    let response;
+    let data;
 
-    const data = await response.json();
+    try {
+      response = await fetch('/api/otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp }),
+      });
+      data = await response.json();
+    } catch (error) {
+      setStatus('The server could not be reached. Please try again.', 'error');
+      return;
+    }
 
     if (!response.ok) {
       setStatus(data.reason || 'OTP verification failed.', 'error');

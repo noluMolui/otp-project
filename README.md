@@ -64,14 +64,3 @@ The server keeps the OTP state in memory to keep this assessment project small. 
 
 The API sends the code by email but never returns it in the response. The frontend only remembers the email address so the user does not have to type it again on the verification page.
 
-## API examples
-
-```bash
-curl -X POST http://localhost:3000/api/otp/send \
-  -H "Content-Type: application/json" \
-  -d '{"email":"student@example.com"}'
-
-curl -X POST http://localhost:3000/api/otp/verify \
-  -H "Content-Type: application/json" \
-  -d '{"email":"student@example.com","otp":"123456"}'
-```

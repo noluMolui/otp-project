@@ -47,11 +47,11 @@ function withService({ now = () => 1_000, sequence = [], config = baseConfig } =
   });
 
   service.sendOtp('rate@example.com');
-  tick += 60_000;
+  tick += 6 * 60_000;
   service.sendOtp('rate@example.com');
-  tick += 60_000;
+  tick += 6 * 60_000;
   service.sendOtp('rate@example.com');
-  tick += 60_000;
+  tick += 6 * 60_000;
 
   const rejected = service.sendOtp('rate@example.com');
   assert.equal(rejected.status, 'error');
@@ -70,6 +70,37 @@ function withService({ now = () => 1_000, sequence = [], config = baseConfig } =
   assert.equal(first.code, '123456');
   assert.equal(second.code, '123456');
   assert.equal(second.isResend, true);
+}
+
+{
+  let tick = 1_000;
+  const service = withService({
+    now: () => tick,
+    sequence: [123456],
+  });
+
+  const first = service.sendOtp('expired-resend@example.com');
+  tick += 31_000;
+  const resent = service.sendOtp('expired-resend@example.com');
+
+  assert.equal(resent.status, 'ok');
+  assert.equal(resent.isResend, true);
+  assert.equal(resent.code, first.code);
+}
+
+{
+  let tick = 1_000;
+  const service = withService({
+    now: () => tick,
+    sequence: [111111, 111111, 222222],
+  });
+
+  const first = service.sendOtp('history@example.com');
+  tick += 6 * 60_000;
+  const second = service.sendOtp('history@example.com');
+
+  assert.equal(first.code, '111111');
+  assert.equal(second.code, '222222');
 }
 
 {

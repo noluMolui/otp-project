@@ -10,6 +10,7 @@
     "test": "node test/otp.test.js"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "express": "^5.1.0",
     "nodemailer": "^10.0.10",
     "otp-security-demo": "file:"

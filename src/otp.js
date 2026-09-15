@@ -25,8 +25,7 @@ function createOtpService({
     if (!userState.has(normalizedEmail)) {
       userState.set(normalizedEmail, {
         requestHistory: [],
-        lastGeneratedAt: 0,
-        lastCode: null,
+        generatedOtps: [],
         currentOtp: null,
       });
     }
@@ -38,21 +37,24 @@ function createOtpService({
     return history.filter((timestamp) => timestamp > cutoff);
   }
 
-  function generateUniqueCode(user) {
+  function generateUniqueCode(user, timestamp) {
     const dayWindow = 24 * 60 * 60 * 1000;
+    const recentCodes = new Set(
+      user.generatedOtps
+        .filter((entry) => entry.generatedAt > timestamp - dayWindow)
+        .map((entry) => entry.code),
+    );
 
     let candidate = generateOtp(serviceConfig.otpLength, randomInt);
     let attempts = 0;
 
-    while (
-      attempts < 25 &&
-      user.lastCode &&
-      user.lastGeneratedAt &&
-      now() - user.lastGeneratedAt < dayWindow &&
-      user.lastCode === candidate
-    ) {
+    while (recentCodes.has(candidate) && attempts < 100) {
       candidate = generateOtp(serviceConfig.otpLength, randomInt);
       attempts += 1;
+    }
+
+    if (recentCodes.has(candidate)) {
+      throw new Error('Unable to generate a unique OTP.');
     }
 
     return candidate;
@@ -62,11 +64,15 @@ function createOtpService({
     const user = getUser(email);
     const timestamp = now();
     const hourWindow = 60 * 60 * 1000;
+    const dayWindow = 24 * 60 * 60 * 1000;
     const resendWindow = serviceConfig.resendWindowMinutes * 60 * 1000;
 
     user.requestHistory = pruneHistory(user.requestHistory, timestamp - hourWindow);
+    user.generatedOtps = user.generatedOtps.filter(
+      (entry) => entry.generatedAt > timestamp - dayWindow,
+    );
 
-    if (user.currentOtp && user.currentOtp.expiresAt > timestamp) {
+    if (user.currentOtp) {
       const timeSinceCreation = timestamp - user.currentOtp.createdAt;
       const resendAllowed =
         timeSinceCreation <= resendWindow &&
@@ -92,7 +98,7 @@ function createOtpService({
       };
     }
 
-    const otpCode = generateUniqueCode(user);
+    const otpCode = generateUniqueCode(user, timestamp);
     const entry = {
       code: otpCode,
       createdAt: timestamp,
@@ -106,8 +112,7 @@ function createOtpService({
     }
 
     user.currentOtp = entry;
-    user.lastCode = otpCode;
-    user.lastGeneratedAt = timestamp;
+    user.generatedOtps.push({ code: otpCode, generatedAt: timestamp });
     user.requestHistory.push(timestamp);
 
     return {

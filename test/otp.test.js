@@ -104,6 +104,38 @@ function withService({ now = () => 1_000, sequence = [], config = baseConfig } =
 }
 
 {
+  let tick = 1_000;
+  const service = withService({
+    now: () => tick,
+    sequence: [123456, 654321],
+  });
+
+  const first = service.sendOtp('rollback@example.com');
+  first.rollback();
+  const retry = service.sendOtp('rollback@example.com');
+
+  assert.notEqual(retry.code, first.code);
+  assert.equal(retry.isResend, false);
+}
+
+{
+  let tick = 1_000;
+  const service = withService({
+    now: () => tick,
+    sequence: [123456],
+  });
+
+  const first = service.sendOtp('resend-rollback@example.com');
+  tick += 31_000;
+  const failedDelivery = service.sendOtp('resend-rollback@example.com');
+  failedDelivery.rollback();
+  const retry = service.sendOtp('resend-rollback@example.com');
+
+  assert.equal(retry.code, first.code);
+  assert.equal(retry.isResend, true);
+}
+
+{
   const service = withService({
     now: () => 1_000,
     sequence: [123456, 654321],

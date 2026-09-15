@@ -39,6 +39,7 @@ app.post('/api/otp/send', async (request, response) => {
       isResend: Boolean(result.isResend),
     });
   } catch (error) {
+    result.rollback?.();
     console.error('OTP email delivery failed:', error.message);
     return response.status(503).json({ status: 'error', reason: 'email-delivery-failed' });
   }

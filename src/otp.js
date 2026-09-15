@@ -74,6 +74,17 @@ function createOtpService({
     const hourWindow = 60 * 60 * 1000;
     const dayWindow = 24 * 60 * 60 * 1000;
     const resendWindow = serviceConfig.resendWindowMinutes * 60 * 1000;
+    const previousState = {
+      requestHistory: [...user.requestHistory],
+      generatedOtps: user.generatedOtps.map((entry) => ({ ...entry })),
+      currentOtp: user.currentOtp ? { ...user.currentOtp } : null,
+    };
+
+    const rollback = () => {
+      user.requestHistory = previousState.requestHistory;
+      user.generatedOtps = previousState.generatedOtps;
+      user.currentOtp = previousState.currentOtp;
+    };
 
     user.requestHistory = pruneHistory(user.requestHistory, timestamp - hourWindow);
     user.generatedOtps = user.generatedOtps.filter(
@@ -95,6 +106,7 @@ function createOtpService({
           code: user.currentOtp.code,
           isResend: true,
           expiresAt: user.currentOtp.expiresAt,
+          rollback,
         };
       }
     }
@@ -128,6 +140,7 @@ function createOtpService({
       code: otpCode,
       isResend: false,
       expiresAt: entry.expiresAt,
+      rollback,
     };
   }
 

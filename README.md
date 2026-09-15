@@ -21,6 +21,8 @@ npm start
 
 The app runs at `http://localhost:3000`.
 
+Before starting the app, copy `.env.example` to `.env` and set the SMTP values for an email provider. The SMTP account must be permitted to send using `MAIL_FROM`.
+
 ## Screens
 
 - Send OTP page: `/`

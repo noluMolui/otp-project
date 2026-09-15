@@ -1,10 +1,122 @@
 const assert = require('node:assert/strict');
-const { generateOtp } = require('../src/otp');
+const { createOtpService, generateOtp } = require('../src/otp');
 
-for (let attempt = 0; attempt < 100; attempt += 1) {
-  const otp = generateOtp(6);
+const baseConfig = {
+  maxRequestsPerHour: 3,
+  otpExpirySeconds: 30,
+  resendWindowMinutes: 5,
+  maxResendsPerOtp: 3,
+  otpLength: 6,
+};
 
-  assert.match(otp, /^\d{6}$/);
+function withService({ now = () => 1_000, sequence = [], config = baseConfig } = {}) {
+  const values = [...sequence];
+  const randomInt = (min, max) => {
+    if (values.length === 0) {
+      return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    return values.shift();
+  };
+
+  return createOtpService({ config, now, randomInt });
 }
 
-console.log('OTP generator checks passed');
+{
+  const otp = generateOtp(6, () => 123456);
+  assert.match(otp, /^\d{6}$/);
+  assert.equal(otp, '123456');
+}
+
+{
+  const service = withService({ sequence: [123456, 234567] });
+  const first = service.sendOtp('student@example.com');
+  const second = service.sendOtp('student@example.com');
+
+  assert.equal(first.status, 'ok');
+  assert.equal(second.status, 'ok');
+  assert.equal(second.isResend, true);
+  assert.equal(second.code, '123456');
+}
+
+{
+  let tick = 1_000;
+  const service = withService({
+    now: () => tick,
+    sequence: [123456, 234567, 345678, 456789],
+  });
+
+  service.sendOtp('rate@example.com');
+  tick += 60_000;
+  service.sendOtp('rate@example.com');
+  tick += 60_000;
+  service.sendOtp('rate@example.com');
+  tick += 60_000;
+
+  const rejected = service.sendOtp('rate@example.com');
+  assert.equal(rejected.status, 'error');
+  assert.equal(rejected.reason, 'max-requests-per-hour');
+}
+
+{
+  const service = withService({
+    now: () => 1_000,
+    sequence: [123456],
+  });
+
+  const first = service.sendOtp('resend@example.com');
+  const second = service.sendOtp('resend@example.com');
+
+  assert.equal(first.code, '123456');
+  assert.equal(second.code, '123456');
+  assert.equal(second.isResend, true);
+}
+
+{
+  const service = withService({
+    now: () => 1_000,
+    sequence: [123456, 654321],
+  });
+
+  service.sendOtp('verify@example.com');
+  const valid = service.verifyOtp('verify@example.com', '123456');
+  const usedAgain = service.verifyOtp('verify@example.com', '123456');
+
+  assert.equal(valid.valid, true);
+  assert.equal(usedAgain.valid, false);
+  assert.equal(usedAgain.reason, 'used');
+}
+
+{
+  const service = withService({
+    now: () => 1_000,
+    sequence: [123456],
+  });
+
+  service.sendOtp('expire@example.com');
+  const expired = service.verifyOtp('expire@example.com', '123456', { now: () => 1_000 + (30 * 1000) + 1 });
+
+  assert.equal(expired.valid, false);
+  assert.equal(expired.reason, 'expired');
+}
+
+{
+  let tick = 1_000;
+  const service = withService({
+    now: () => tick,
+    sequence: [555555, 666666],
+  });
+
+  const first = service.sendOtp('latest@example.com');
+  tick = 1_000 + (6 * 60 * 1000) + 1;
+  const second = service.sendOtp('latest@example.com');
+
+  assert.equal(first.code, '555555');
+  assert.equal(second.code, '666666');
+
+  const oldOtp = service.verifyOtp('latest@example.com', '555555');
+  assert.equal(oldOtp.valid, false);
+  assert.equal(oldOtp.reason, 'invalid');
+}
+
+console.log('OTP service tests passed');

@@ -71,6 +71,10 @@ app.get('/verify', (request, response) => {
   response.sendFile(path.join(__dirname, '..', 'public', 'verify.html'));
 });
 
-app.listen(port, () => {
-  console.log(`OTP demo listening on http://localhost:${port}`);
-});
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`OTP demo listening on http://localhost:${port}`);
+  });
+}
+
+module.exports = app;

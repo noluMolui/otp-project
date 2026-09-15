@@ -14,6 +14,9 @@ function createMailer(env = process.env) {
     host: env.SMTP_HOST,
     port,
     secure: env.SMTP_SECURE === 'true' || port === 465,
+    tls: {
+      rejectUnauthorized: env.SMTP_TLS_REJECT_UNAUTHORIZED !== 'false',
+    },
     auth: {
       user: env.SMTP_USER,
       pass: env.SMTP_PASS,

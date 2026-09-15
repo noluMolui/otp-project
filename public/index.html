@@ -1,14 +1,40 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OTP Security Demo</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Send OTP</title>
+    <style>
+      body { font-family: Arial, sans-serif; max-width: 640px; margin: 40px auto; padding: 20px; }
+      form { display: grid; gap: 12px; }
+      input, button { padding: 10px 12px; font-size: 1rem; }
+      .status { margin-top: 12px; padding: 12px; border-radius: 8px; background: #f2f2f2; }
+      .error { background: #fdecea; color: #7f1d1d; }
+      .success { background: #eafaf1; color: #14532d; }
+      .demo-code { font-size: 1.5rem; font-weight: bold; letter-spacing: 0.2rem; }
+    </style>
   </head>
   <body>
+    <header>
+      <h1>Send OTP</h1>
+      <p>Use this screen to request an OTP for a user email address.</p>
+    </header>
+
     <main>
-      <h1>OTP Security Demo</h1>
-      <p>The API foundation is running.</p>
+      <form id="send-otp-form">
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" placeholder="student@example.com" required />
+
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <button type="submit">Send OTP</button>
+          <button type="button" id="resend-button">Resend OTP</button>
+        </div>
+      </form>
+
+      <div id="status" class="status" aria-live="polite">No OTP has been sent yet.</div>
+      <div id="demo-code" class="demo-code" style="display:none; margin-top: 12px;">000000</div>
     </main>
+
+    <script src="/app.js"></script>
   </body>
 </html>

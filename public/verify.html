@@ -1,30 +1,19 @@
 <!doctype html>
-<html lang="en" class="h-full">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Verify OTP | Secure Access</title>
+    <title>Verify OTP</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body class="min-h-full bg-slate-950 text-slate-100">
-    <div class="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.18),_transparent_36%),linear-gradient(135deg,_#0f172a,_#172554_55%,_#155e75)] px-5 py-8 sm:px-8">
-      <main class="mx-auto flex min-h-[calc(100vh-4rem)] max-w-5xl items-center justify-center">
-        <section class="grid w-full overflow-hidden rounded-3xl border border-white/10 bg-white shadow-2xl shadow-black/20 lg:grid-cols-[0.85fr_1.15fr]">
-          <div class="flex flex-col justify-between bg-sky-700 p-8 sm:p-12">
-            <div>
-              <div class="mb-10 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 text-xl font-bold">02</div>
-              <p class="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-sky-100">Confirm ownership</p>
-              <h1 class="max-w-sm text-4xl font-black tracking-tight text-white sm:text-5xl">Verify your code.</h1>
-              <p class="mt-5 max-w-sm text-base leading-7 text-sky-50">Use the exact six digits delivered to your email. The code is single-use.</p>
-            </div>
-            <p class="mt-12 text-sm text-sky-100">No code? Return to the send screen and request one.</p>
-          </div>
-
-          <div class="p-8 text-slate-900 sm:p-12">
+  <body class="min-h-screen bg-slate-100 px-4 py-10 text-slate-900">
+      <main class="mx-auto max-w-lg">
+        <section class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <div>
             <header class="mb-8">
-              <p class="text-sm font-semibold text-sky-700">Step 2 of 2</p>
-              <h2 class="mt-2 text-2xl font-bold tracking-tight">Verify OTP</h2>
-              <p class="mt-2 text-sm leading-6 text-slate-500">Enter the same email address and the code from the message you received.</p>
+              <p class="text-sm font-semibold text-sky-700">OTP test</p>
+              <h1 class="mt-2 text-2xl font-bold">Verify OTP</h1>
+              <p class="mt-2 text-sm leading-6 text-slate-500">Enter the email and the newest code from your inbox.</p>
             </header>
 
             <form id="verify-otp-form" class="space-y-5">
@@ -47,7 +36,6 @@
           </div>
         </section>
       </main>
-    </div>
 
     <script src="/app.js"></script>
   </body>

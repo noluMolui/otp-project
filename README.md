@@ -58,17 +58,11 @@ For a real email test:
 
 The server keeps OTP state in memory for this assessment demo. Restarting the server clears active OTPs and request history.
 
-## Milestone commits
+## Implementation notes
 
-1. `chore: initialize OTP demo`
-2. `feat: add OTP configuration`
-3. `feat: add OTP generation`
-4. `test: add OTP generator and business rule checks`
-5. `feat: implement OTP request and resend rules`
-6. `feat: expose OTP send and verify API`
-7. `feat: add frontend send OTP screen`
-8. `feat: add frontend verify OTP screen`
-9. `docs: add setup and usage notes`
+The server keeps the OTP state in memory to keep this assessment project small. In a larger application I would move the state and rate-limit data to a shared store such as Redis or a database.
+
+The API sends the code by email but never returns it in the response. The frontend only remembers the email address so the user does not have to type it again on the verification page.
 
 ## API examples
 
